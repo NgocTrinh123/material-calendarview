@@ -62,7 +62,6 @@ class SimpleMonthView extends View {
     private static final int DAYS_IN_WEEK = 7;
     private static final int MAX_WEEKS_IN_MONTH = 6;
 
-    private static final int DEFAULT_SELECTED_DAY = -1;
     private static final int DEFAULT_WEEK_START = Calendar.SUNDAY;
 
     private static final String DEFAULT_TITLE_FORMAT = "MMMM y";
@@ -114,7 +113,7 @@ class SimpleMonthView extends View {
      * The day of month for today, or -1 if the today is not in the current
      * month.
      */
-    private int mToday = DEFAULT_SELECTED_DAY;
+//    private int mToday = DEFAULT_SELECTED_DAY;
 
     /**
      * The first day of the week (ex. Calendar.SUNDAY).
@@ -409,7 +408,7 @@ class SimpleMonthView extends View {
         final float lineHeight = mMonthPaint.ascent() + mMonthPaint.descent();
         final float y = (mMonthHeight - lineHeight) / 2f;
 
-        canvas.drawText(getTitle().toString(), x, y, mMonthPaint);
+        mStyleDelegate.drawMonthLabel(canvas, mMonthPaint, getTitle(), x, y);
     }
 
     private void drawDaysOfWeek(Canvas canvas) {
@@ -433,7 +432,7 @@ class SimpleMonthView extends View {
 
             final int dayOfWeek = (col + mWeekStart) % DAYS_IN_WEEK;
             final String label = getDayOfWeekLabel(dayOfWeek);
-            canvas.drawText(label, colCenterRtl, rowCenter - halfLineHeight, p);
+            mStyleDelegate.drawDayOfWeekLabel(canvas, p, label, colCenterRtl, rowCenter - halfLineHeight);
         }
     }
 
@@ -473,29 +472,26 @@ class SimpleMonthView extends View {
                 stateMask = STATE_ACTIVATED;
 
                 // Adjust the circle to be centered on the row.
-                canvas.drawCircle(colCenterRtl, rowCenter, mDaySelectorRadius, mDaySelectorPaint);
+                mStyleDelegate.drawDaySelected(canvas, mDaySelectorPaint,
+                        colCenterRtl, rowCenter,
+                        mDaySelectorRadius);
+
             } else if (mTouchedItem == day) {
                 stateMask = STATE_PRESSED;
 
                 if (isDayEnabled) {
                     // Adjust the circle to be centered on the row.
-                    canvas.drawCircle(colCenterRtl, rowCenter,
-                            mDaySelectorRadius, mDayHighlightPaint);
+                    mStyleDelegate.drawDayPressed(canvas, mDayHighlightPaint,
+                            colCenterRtl, rowCenter,
+                            mDaySelectorRadius);
                 }
             } else {
                 stateMask = isDayEnabled ? STATE_ENALBED : STATE_DISALBED;
             }
 
-            final boolean isDayToday = mToday == day;
-            final int dayTextColor;
-            if (isDayToday && !isDayActivated) {
-                dayTextColor = mDaySelectorPaint.getColor();
-            } else {
-                dayTextColor = mDayTextColor.getColorForState(stateMask, 0);
-            }
-            p.setColor(dayTextColor);
+            p.setColor(mDayTextColor.getColorForState(stateMask, 0));
 
-            canvas.drawText(mDayFormatter.format(day), colCenterRtl, rowCenter - halfLineHeight, p);
+            mStyleDelegate.drawDayLabel(canvas, p, mDayFormatter.format(day), colCenterRtl, rowCenter - halfLineHeight);
 
             col++;
 
@@ -592,12 +588,12 @@ class SimpleMonthView extends View {
 
         // Figure out what day today is.
         final Calendar today = Calendar.getInstance();
-        mToday = -1;
+//        mToday = -1;
         mDaysInMonth = getDaysInMonth(mMonth, mYear);
         for (int i = 0; i < mDaysInMonth; i++) {
             final int day = i + 1;
             if (sameDay(day, today)) {
-                mToday = day;
+//                mToday = day;
             }
         }
 

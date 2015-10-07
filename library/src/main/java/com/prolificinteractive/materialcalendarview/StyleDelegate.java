@@ -3,7 +3,10 @@ package com.prolificinteractive.materialcalendarview;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.text.TextPaint;
 import android.util.AttributeSet;
 
 import com.prolificinteractive.materialcalendarview.utils.ViewUtils;
@@ -98,5 +101,25 @@ public class StyleDelegate {
 
     public void setFirstDayOfWeek(int firstDayOfWeek) {
         this.firstDayOfWeek = firstDayOfWeek;
+    }
+
+    public void drawMonthLabel(Canvas canvas, TextPaint paint, CharSequence label, float x, float y) {
+        canvas.drawText(label.toString(), x, y, paint);
+    }
+
+    public void drawDayOfWeekLabel(Canvas canvas, TextPaint paint, CharSequence label, float x, float y) {
+        canvas.drawText(label.toString(), x, y, paint);
+    }
+
+    public void drawDayLabel(Canvas canvas, TextPaint paint, CharSequence label, float x, float y) {
+        canvas.drawText(label.toString(), x, y, paint);
+    }
+
+    public void drawDayPressed(Canvas canvas, Paint paint, float x, float y, float radius) {
+        canvas.drawCircle(x, y, radius, paint);
+    }
+
+    public void drawDaySelected(Canvas canvas, Paint paint, float x, float y, float radius) {
+        canvas.drawCircle(x, y, radius, paint);
     }
 }
