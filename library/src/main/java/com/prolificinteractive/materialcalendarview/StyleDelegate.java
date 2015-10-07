@@ -6,6 +6,8 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.util.AttributeSet;
 
+import com.prolificinteractive.materialcalendarview.utils.ViewUtils;
+
 import java.util.Calendar;
 
 public class StyleDelegate {
@@ -15,11 +17,12 @@ public class StyleDelegate {
     private int dayTextAppearanceResId;
     private ColorStateList daySelectorColor;
     private int firstDayOfWeek;
+    private ColorStateList dayHighlightColor;
 
     //TODO
-    private ColorStateList monthTextColor;
-    private ColorStateList dayOfWeekTextColor;
-    private ColorStateList dayTextColor;
+    private ColorStateList monthTextColor = null;
+    private ColorStateList dayOfWeekTextColor = null;
+    private ColorStateList dayTextColor = null;
 
     public StyleDelegate(Context context, AttributeSet attrs, int defStyleAttr) {
         final TypedArray a = context.obtainStyledAttributes(attrs,
@@ -39,6 +42,8 @@ public class StyleDelegate {
                 R.style.TextAppearance_MaterialCalendarView_Day);
 
         daySelectorColor = a.getColorStateList(R.styleable.CalendarView_daySelectorColor);
+
+        dayHighlightColor = ViewUtils.getThemeColorControlHighlight(context);
 
         a.recycle();
     }
@@ -76,8 +81,7 @@ public class StyleDelegate {
     }
 
     public ColorStateList getHighlightColor() {
-        //TODO use controlColorHighlight
-        return daySelectorColor;
+        return dayHighlightColor;
     }
 
     public ColorStateList getMonthTextColor() {

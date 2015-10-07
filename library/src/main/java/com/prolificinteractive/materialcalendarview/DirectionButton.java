@@ -2,10 +2,10 @@ package com.prolificinteractive.materialcalendarview;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
-import android.os.Build;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.widget.ImageView;
+
+import com.prolificinteractive.materialcalendarview.utils.ViewUtils;
 
 /**
  * An {@linkplain android.widget.ImageView} to pragmatically set the color of arrows
@@ -22,7 +22,7 @@ class DirectionButton extends ImageView {
 
         setScaleType(ScaleType.CENTER_INSIDE);
 
-        setBackgroundResource(getThemeSelectableBackgroundId(context));
+        setBackgroundResource(ViewUtils.getThemeSelectableBackgroundId(context));
     }
 
     public void setColor(int color) {
@@ -35,21 +35,4 @@ class DirectionButton extends ImageView {
         setAlpha(enabled ? 1f : 0.1f);
     }
 
-    private static int getThemeSelectableBackgroundId(Context context) {
-        //Get selectableItemBackgroundBorderless defined for AppCompat
-        int colorAttr = context.getResources().getIdentifier(
-                "selectableItemBackgroundBorderless", "attr", context.getPackageName());
-
-        if (colorAttr == 0) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                colorAttr = android.R.attr.selectableItemBackgroundBorderless;
-            } else {
-                colorAttr = android.R.attr.selectableItemBackground;
-            }
-        }
-
-        TypedValue outValue = new TypedValue();
-        context.getTheme().resolveAttribute(colorAttr, outValue, true);
-        return outValue.resourceId;
-    }
 }
