@@ -292,18 +292,27 @@ class SimpleMonthView extends View {
     }
 
     void setMonthTextColor(ColorStateList monthTextColor) {
+        if (monthTextColor == null) {
+            return;
+        }
         final int enabledColor = monthTextColor.getColorForState(ENABLED_STATE_SET, 0);
         mMonthPaint.setColor(enabledColor);
         invalidate();
     }
 
     void setDayOfWeekTextColor(ColorStateList dayOfWeekTextColor) {
+        if (dayOfWeekTextColor == null) {
+            return;
+        }
         final int enabledColor = dayOfWeekTextColor.getColorForState(ENABLED_STATE_SET, 0);
         mDayOfWeekPaint.setColor(enabledColor);
         invalidate();
     }
 
     void setDayTextColor(ColorStateList dayTextColor) {
+        if (dayTextColor == null) {
+            return;
+        }
         mDayTextColor = dayTextColor;
         invalidate();
     }

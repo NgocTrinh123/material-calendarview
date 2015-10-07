@@ -17,8 +17,6 @@
 package com.prolificinteractive.materialcalendarview;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
-import android.content.res.TypedArray;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -37,8 +35,6 @@ public class MaterialCalendarView extends ViewGroup {
     private static final int DEFAULT_START_YEAR = 1900;
     private static final int DEFAULT_END_YEAR = 2100;
 
-    private static final int[] ATTRS_TEXT_COLOR = new int[]{android.R.attr.textColor};
-
     private final Calendar mSelectedDay = Calendar.getInstance();
     private final Calendar mMinDate = Calendar.getInstance();
     private final Calendar mMaxDate = Calendar.getInstance();
@@ -50,6 +46,7 @@ public class MaterialCalendarView extends ViewGroup {
     private final DirectionButton mNextButton;
 
     private final DayPickerPagerAdapter mAdapter;
+    private final StyleDelegate styleDelegate;
 
     /**
      * Temporary calendar used for date calculations.
@@ -69,37 +66,15 @@ public class MaterialCalendarView extends ViewGroup {
     public MaterialCalendarView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
+        styleDelegate = new StyleDelegate(context, attrs, defStyleAttr);
+
         mAccessibilityManager = (AccessibilityManager) context.getSystemService(
                 Context.ACCESSIBILITY_SERVICE);
 
-        final TypedArray a = context.obtainStyledAttributes(attrs,
-                R.styleable.CalendarView, defStyleAttr, 0);
-
-        final int firstDayOfWeek = a.getInt(R.styleable.CalendarView_firstDayOfWeek,
-                Calendar.getInstance().getFirstDayOfWeek());
-
-        final int monthTextAppearanceResId = a.getResourceId(
-                R.styleable.CalendarView_monthTextAppearance,
-                R.style.TextAppearance_MaterialCalendarView_Month);
-        final int dayOfWeekTextAppearanceResId = a.getResourceId(
-                R.styleable.CalendarView_weekDayTextAppearance,
-                R.style.TextAppearance_MaterialCalendarView_DayOfWeek);
-        final int dayTextAppearanceResId = a.getResourceId(
-                R.styleable.CalendarView_dateTextAppearance,
-                R.style.TextAppearance_MaterialCalendarView_Day);
-
-        final ColorStateList daySelectorColor = a.getColorStateList(
-                R.styleable.CalendarView_daySelectorColor);
-
-        a.recycle();
-
         // Set up adapter.
         mAdapter = new DayPickerPagerAdapter(context,
-                R.layout.mcv_date_picker_month_item_material, R.id.month_view);
-        mAdapter.setMonthTextAppearance(monthTextAppearanceResId);
-        mAdapter.setDayOfWeekTextAppearance(dayOfWeekTextAppearanceResId);
-        mAdapter.setDayTextAppearance(dayTextAppearanceResId);
-        mAdapter.setDaySelectorColor(daySelectorColor);
+                R.layout.mcv_date_picker_month_item_material, R.id.month_view, styleDelegate);
+        mAdapter.setStyleDelegate(styleDelegate);
 
         final LayoutInflater inflater = LayoutInflater.from(context);
         final ViewGroup content = (ViewGroup) inflater.inflate(DEFAULT_LAYOUT, this, false);
@@ -121,17 +96,8 @@ public class MaterialCalendarView extends ViewGroup {
         mViewPager.setAdapter(mAdapter);
         mViewPager.setOnPageChangeListener(mOnPageChangedListener);
 
-        // Proxy the month text color into the previous and next buttons.
-        if (monthTextAppearanceResId != 0) {
-            final TypedArray ta = getContext().obtainStyledAttributes(null,
-                    ATTRS_TEXT_COLOR, 0, monthTextAppearanceResId);
-            final ColorStateList monthColor = ta.getColorStateList(0);
-            if (monthColor != null) {
-                mPrevButton.setColor(monthColor.getDefaultColor());
-                mNextButton.setColor(monthColor.getDefaultColor());
-            }
-            ta.recycle();
-        }
+        mPrevButton.setColor(styleDelegate.getArrowButtonColor());
+        mNextButton.setColor(styleDelegate.getArrowButtonColor());
 
         // Set up min and max dates.
         final Calendar tempDate = Calendar.getInstance();
@@ -148,7 +114,6 @@ public class MaterialCalendarView extends ViewGroup {
         final long setDateMillis = MathUtils.constrain(
                 System.currentTimeMillis(), minDateMillis, maxDateMillis);
 
-        setFirstDayOfWeek(firstDayOfWeek);
         setMinDate(minDateMillis);
         setMaxDate(maxDateMillis);
         setDate(setDateMillis, false);
@@ -232,19 +197,25 @@ public class MaterialCalendarView extends ViewGroup {
     }
 
     public void setDayOfWeekTextAppearance(int resId) {
-        mAdapter.setDayOfWeekTextAppearance(resId);
+        styleDelegate.setDayOfWeekTextAppearance(resId);
+        onStyleChanged();
     }
 
     public int getDayOfWeekTextAppearance() {
-        return mAdapter.getDayOfWeekTextAppearance();
+        return styleDelegate.getDayOfWeekTextAppearance();
     }
 
     public void setDayTextAppearance(int resId) {
-        mAdapter.setDayTextAppearance(resId);
+        styleDelegate.setDayTextAppearance(resId);
+        onStyleChanged();
     }
 
     public int getDayTextAppearance() {
-        return mAdapter.getDayTextAppearance();
+        return styleDelegate.getDayTextAppearance();
+    }
+
+    private void onStyleChanged() {
+        mAdapter.setStyleDelegate(styleDelegate);
     }
 
     /**
@@ -300,7 +271,7 @@ public class MaterialCalendarView extends ViewGroup {
     }
 
     public int getFirstDayOfWeek() {
-        return mAdapter.getFirstDayOfWeek();
+        return styleDelegate.getFirstDayOfWeek();
     }
 
     public void setMinDate(long timeInMillis) {
@@ -360,17 +331,6 @@ public class MaterialCalendarView extends ViewGroup {
         }
         mTempCalendar.setTimeInMillis(timeInMillis);
         return mTempCalendar;
-    }
-
-    /**
-     * Gets the position of the view that is most prominently displayed within the list view.
-     */
-    public int getMostVisiblePosition() {
-        return mViewPager.getCurrentItem();
-    }
-
-    public void setPosition(int position) {
-        mViewPager.setCurrentItem(position, false);
     }
 
     private final ViewPager.OnPageChangeListener mOnPageChangedListener = new ViewPager.OnPageChangeListener() {

@@ -17,8 +17,6 @@
 package com.prolificinteractive.materialcalendarview;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
-import android.content.res.TypedArray;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
@@ -45,16 +43,9 @@ class DayPickerPagerAdapter extends PagerAdapter {
     private final LayoutInflater mInflater;
     private final int mLayoutResId;
     private final int mCalendarViewId;
+    private StyleDelegate mStyleDelegate;
 
     private Calendar mSelectedDay = null;
-
-    private int mMonthTextAppearance;
-    private int mDayOfWeekTextAppearance;
-    private int mDayTextAppearance;
-
-    private ColorStateList mCalendarTextColor;
-    private ColorStateList mDaySelectorColor;
-    private ColorStateList mDayHighlightColor;
 
     private OnDaySelectedListener mOnDaySelectedListener;
 
@@ -62,15 +53,11 @@ class DayPickerPagerAdapter extends PagerAdapter {
     private int mFirstDayOfWeek;
 
     public DayPickerPagerAdapter(@NonNull Context context, @LayoutRes int layoutResId,
-                                 @IdRes int calendarViewId) {
+                                 @IdRes int calendarViewId, StyleDelegate styleDelegate) {
         mInflater = LayoutInflater.from(context);
         mLayoutResId = layoutResId;
         mCalendarViewId = calendarViewId;
-
-        final TypedArray ta = context.obtainStyledAttributes(new int[]{
-                android.R.attr.colorControlHighlight});
-        mDayHighlightColor = ta.getColorStateList(0);
-        ta.recycle();
+        mStyleDelegate = styleDelegate;
     }
 
     public void setRange(@NonNull Calendar min, @NonNull Calendar max) {
@@ -100,10 +87,6 @@ class DayPickerPagerAdapter extends PagerAdapter {
             final SimpleMonthView monthView = mItems.valueAt(i).calendar;
             monthView.setFirstDayOfWeek(weekStart);
         }
-    }
-
-    public int getFirstDayOfWeek() {
-        return mFirstDayOfWeek;
     }
 
     /**
@@ -145,34 +128,6 @@ class DayPickerPagerAdapter extends PagerAdapter {
         mOnDaySelectedListener = listener;
     }
 
-    void setCalendarTextColor(ColorStateList calendarTextColor) {
-        mCalendarTextColor = calendarTextColor;
-    }
-
-    void setDaySelectorColor(ColorStateList selectorColor) {
-        mDaySelectorColor = selectorColor;
-    }
-
-    void setMonthTextAppearance(int resId) {
-        mMonthTextAppearance = resId;
-    }
-
-    void setDayOfWeekTextAppearance(int resId) {
-        mDayOfWeekTextAppearance = resId;
-    }
-
-    int getDayOfWeekTextAppearance() {
-        return mDayOfWeekTextAppearance;
-    }
-
-    void setDayTextAppearance(int resId) {
-        mDayTextAppearance = resId;
-    }
-
-    int getDayTextAppearance() {
-        return mDayTextAppearance;
-    }
-
     @Override
     public int getCount() {
         return mCount;
@@ -210,23 +165,15 @@ class DayPickerPagerAdapter extends PagerAdapter {
 
         final SimpleMonthView v = (SimpleMonthView) itemView.findViewById(mCalendarViewId);
         v.setOnDayClickListener(mOnDayClickListener);
-        v.setMonthTextAppearance(mMonthTextAppearance);
-        v.setDayOfWeekTextAppearance(mDayOfWeekTextAppearance);
-        v.setDayTextAppearance(mDayTextAppearance);
+        v.setMonthTextAppearance(mStyleDelegate.getMonthTextAppearance());
+        v.setDayOfWeekTextAppearance(mStyleDelegate.getDayOfWeekTextAppearance());
+        v.setDayTextAppearance(mStyleDelegate.getDayTextAppearance());
+        v.setDaySelectorColor(mStyleDelegate.getSelectionColor());
+        v.setDayHighlightColor(mStyleDelegate.getHighlightColor());
 
-        if (mDaySelectorColor != null) {
-            v.setDaySelectorColor(mDaySelectorColor);
-        }
-
-        if (mDayHighlightColor != null) {
-            v.setDayHighlightColor(mDayHighlightColor);
-        }
-
-        if (mCalendarTextColor != null) {
-            v.setMonthTextColor(mCalendarTextColor);
-            v.setDayOfWeekTextColor(mCalendarTextColor);
-            v.setDayTextColor(mCalendarTextColor);
-        }
+        v.setMonthTextColor(mStyleDelegate.getMonthTextColor());
+        v.setDayOfWeekTextColor(mStyleDelegate.getDayOfWeekTextColor());
+        v.setDayTextColor(mStyleDelegate.getDayTextColor());
 
         final int month = getMonthForPosition(position);
         final int year = getYearForPosition(position);
@@ -252,8 +199,7 @@ class DayPickerPagerAdapter extends PagerAdapter {
             enabledDayRangeEnd = 31;
         }
 
-        v.setMonthParams(selectedDay, month, year, mFirstDayOfWeek,
-                enabledDayRangeStart, enabledDayRangeEnd);
+        v.setMonthParams(selectedDay, month, year, mFirstDayOfWeek, enabledDayRangeStart, enabledDayRangeEnd);
 
         final ViewHolder holder = new ViewHolder(position, itemView, v);
         mItems.put(position, holder);
@@ -298,6 +244,11 @@ class DayPickerPagerAdapter extends PagerAdapter {
             }
         }
     };
+
+    public void setStyleDelegate(StyleDelegate styleDelegate) {
+        this.mStyleDelegate = styleDelegate;
+        notifyDataSetChanged();
+    }
 
     private static class ViewHolder {
         public final int position;
