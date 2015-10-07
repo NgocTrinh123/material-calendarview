@@ -95,4 +95,8 @@ public class StyleDelegate {
     public ColorStateList getDayTextColor() {
         return dayTextColor;
     }
+
+    public void setFirstDayOfWeek(int firstDayOfWeek) {
+        this.firstDayOfWeek = firstDayOfWeek;
+    }
 }

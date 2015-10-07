@@ -50,7 +50,6 @@ class DayPickerPagerAdapter extends PagerAdapter {
     private OnDaySelectedListener mOnDaySelectedListener;
 
     private int mCount;
-    private int mFirstDayOfWeek;
 
     public DayPickerPagerAdapter(@NonNull Context context, @LayoutRes int layoutResId,
                                  @IdRes int calendarViewId, StyleDelegate styleDelegate) {
@@ -79,7 +78,7 @@ class DayPickerPagerAdapter extends PagerAdapter {
      *                  {@link Calendar#SUNDAY} through {@link Calendar#SATURDAY}
      */
     public void setFirstDayOfWeek(int weekStart) {
-        mFirstDayOfWeek = weekStart;
+        mStyleDelegate.setFirstDayOfWeek(weekStart);
 
         // Update displayed views.
         final int count = mItems.size();
@@ -165,15 +164,7 @@ class DayPickerPagerAdapter extends PagerAdapter {
 
         final SimpleMonthView v = (SimpleMonthView) itemView.findViewById(mCalendarViewId);
         v.setOnDayClickListener(mOnDayClickListener);
-        v.setMonthTextAppearance(mStyleDelegate.getMonthTextAppearance());
-        v.setDayOfWeekTextAppearance(mStyleDelegate.getDayOfWeekTextAppearance());
-        v.setDayTextAppearance(mStyleDelegate.getDayTextAppearance());
-        v.setDaySelectorColor(mStyleDelegate.getSelectionColor());
-        v.setDayHighlightColor(mStyleDelegate.getHighlightColor());
-
-        v.setMonthTextColor(mStyleDelegate.getMonthTextColor());
-        v.setDayOfWeekTextColor(mStyleDelegate.getDayOfWeekTextColor());
-        v.setDayTextColor(mStyleDelegate.getDayTextColor());
+        v.setStyleDelegate(mStyleDelegate);
 
         final int month = getMonthForPosition(position);
         final int year = getYearForPosition(position);
@@ -199,7 +190,7 @@ class DayPickerPagerAdapter extends PagerAdapter {
             enabledDayRangeEnd = 31;
         }
 
-        v.setMonthParams(selectedDay, month, year, mFirstDayOfWeek, enabledDayRangeStart, enabledDayRangeEnd);
+        v.setMonthParams(selectedDay, month, year, mStyleDelegate.getFirstDayOfWeek(), enabledDayRangeStart, enabledDayRangeEnd);
 
         final ViewHolder holder = new ViewHolder(position, itemView, v);
         mItems.put(position, holder);

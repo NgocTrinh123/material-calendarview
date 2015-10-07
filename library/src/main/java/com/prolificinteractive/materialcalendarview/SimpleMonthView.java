@@ -150,6 +150,7 @@ class SimpleMonthView extends View {
     private ColorStateList mDayTextColor;
 
     private int mTouchedItem = -1;
+    private StyleDelegate mStyleDelegate;
 
     public SimpleMonthView(Context context) {
         this(context, null);
@@ -289,6 +290,22 @@ class SimpleMonthView extends View {
         mDayPaint.setTypeface(Typeface.DEFAULT);
         mDayPaint.setTextAlign(Align.CENTER);
         mDayPaint.setStyle(Style.FILL);
+    }
+
+    public void setStyleDelegate(StyleDelegate styleDelegate) {
+        mStyleDelegate = styleDelegate;
+
+        setMonthTextAppearance(mStyleDelegate.getMonthTextAppearance());
+        setDayOfWeekTextAppearance(mStyleDelegate.getDayOfWeekTextAppearance());
+        setDayTextAppearance(mStyleDelegate.getDayTextAppearance());
+        setDaySelectorColor(mStyleDelegate.getSelectionColor());
+        setDayHighlightColor(mStyleDelegate.getHighlightColor());
+
+        setMonthTextColor(mStyleDelegate.getMonthTextColor());
+        setDayOfWeekTextColor(mStyleDelegate.getDayOfWeekTextColor());
+        setDayTextColor(mStyleDelegate.getDayTextColor());
+
+        invalidate();
     }
 
     void setMonthTextColor(ColorStateList monthTextColor) {

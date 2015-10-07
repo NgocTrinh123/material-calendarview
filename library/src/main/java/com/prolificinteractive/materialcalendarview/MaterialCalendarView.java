@@ -46,7 +46,7 @@ public class MaterialCalendarView extends ViewGroup {
     private final DirectionButton mNextButton;
 
     private final DayPickerPagerAdapter mAdapter;
-    private final StyleDelegate styleDelegate;
+    private final StyleDelegate mStyleDelegate;
 
     /**
      * Temporary calendar used for date calculations.
@@ -66,15 +66,15 @@ public class MaterialCalendarView extends ViewGroup {
     public MaterialCalendarView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        styleDelegate = new StyleDelegate(context, attrs, defStyleAttr);
+        mStyleDelegate = new StyleDelegate(context, attrs, defStyleAttr);
 
         mAccessibilityManager = (AccessibilityManager) context.getSystemService(
                 Context.ACCESSIBILITY_SERVICE);
 
         // Set up adapter.
         mAdapter = new DayPickerPagerAdapter(context,
-                R.layout.mcv_date_picker_month_item_material, R.id.month_view, styleDelegate);
-        mAdapter.setStyleDelegate(styleDelegate);
+                R.layout.mcv_date_picker_month_item_material, R.id.month_view, mStyleDelegate);
+        mAdapter.setStyleDelegate(mStyleDelegate);
 
         final LayoutInflater inflater = LayoutInflater.from(context);
         final ViewGroup content = (ViewGroup) inflater.inflate(DEFAULT_LAYOUT, this, false);
@@ -96,8 +96,8 @@ public class MaterialCalendarView extends ViewGroup {
         mViewPager.setAdapter(mAdapter);
         mViewPager.setOnPageChangeListener(mOnPageChangedListener);
 
-        mPrevButton.setColor(styleDelegate.getArrowButtonColor());
-        mNextButton.setColor(styleDelegate.getArrowButtonColor());
+        mPrevButton.setColor(mStyleDelegate.getArrowButtonColor());
+        mNextButton.setColor(mStyleDelegate.getArrowButtonColor());
 
         // Set up min and max dates.
         final Calendar tempDate = Calendar.getInstance();
@@ -197,25 +197,25 @@ public class MaterialCalendarView extends ViewGroup {
     }
 
     public void setDayOfWeekTextAppearance(int resId) {
-        styleDelegate.setDayOfWeekTextAppearance(resId);
+        mStyleDelegate.setDayOfWeekTextAppearance(resId);
         onStyleChanged();
     }
 
     public int getDayOfWeekTextAppearance() {
-        return styleDelegate.getDayOfWeekTextAppearance();
+        return mStyleDelegate.getDayOfWeekTextAppearance();
     }
 
     public void setDayTextAppearance(int resId) {
-        styleDelegate.setDayTextAppearance(resId);
+        mStyleDelegate.setDayTextAppearance(resId);
         onStyleChanged();
     }
 
     public int getDayTextAppearance() {
-        return styleDelegate.getDayTextAppearance();
+        return mStyleDelegate.getDayTextAppearance();
     }
 
     private void onStyleChanged() {
-        mAdapter.setStyleDelegate(styleDelegate);
+        mAdapter.setStyleDelegate(mStyleDelegate);
     }
 
     /**
@@ -267,11 +267,12 @@ public class MaterialCalendarView extends ViewGroup {
     }
 
     public void setFirstDayOfWeek(int firstDayOfWeek) {
+        mStyleDelegate.setFirstDayOfWeek(firstDayOfWeek);
         mAdapter.setFirstDayOfWeek(firstDayOfWeek);
     }
 
     public int getFirstDayOfWeek() {
-        return styleDelegate.getFirstDayOfWeek();
+        return mStyleDelegate.getFirstDayOfWeek();
     }
 
     public void setMinDate(long timeInMillis) {
