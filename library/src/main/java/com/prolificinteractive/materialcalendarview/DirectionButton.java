@@ -20,6 +20,8 @@ class DirectionButton extends ImageView {
     public DirectionButton(Context context, AttributeSet attrs) {
         super(context, attrs);
 
+        setScaleType(ScaleType.CENTER_INSIDE);
+
         setBackgroundResource(getThemeSelectableBackgroundId(context));
     }
 

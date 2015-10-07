@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="mcv_date_picker_month_height">40dp</dimen>
+    <dimen name="mcv_date_picker_day_of_week_height">14dp</dimen>
+    <dimen name="mcv_date_picker_day_height">32dp</dimen>
+    <dimen name="mcv_date_picker_day_width">46dp</dimen>
+    <dimen name="mcv_date_picker_day_selector_radius">16dp</dimen>
+    <dimen name="mcv_day_picker_padding_horizontal">18dp</dimen>
+    <dimen name="mcv_day_picker_padding_top">0dp</dimen>
+
+</resources>

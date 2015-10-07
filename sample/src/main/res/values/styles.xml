@@ -6,11 +6,21 @@
         <item name="colorPrimary">@color/sample_primary</item>
         <item name="colorPrimaryDark">@color/sample_primary</item>
         <item name="colorAccent">@color/sample_accent</item>
+        <item name="mcv_calendarViewStyle">@style/CalendarView.Def</item>
     </style>
 
     <style name="CustomDayTextAppearance"
         parent="TextAppearance.AppCompat.Medium">
-        <item name="android:textColor">@color/mcv_text_date_light</item>
+    </style>
+
+    <style name="CalendarView.Def"
+           parent="android:Widget">
+        <item name="monthTextAppearance">@style/TextAppearance.MaterialCalendarView.Month</item>
+        <item name="weekDayTextAppearance">@style/TextAppearance.MaterialCalendarView.DayOfWeek
+        </item>
+        <item name="dateTextAppearance">@style/TextAppearance.MaterialCalendarView.Day</item>
+        <item name="daySelectorColor">?attr/colorControlActivated</item>
+        <item name="dayHighlightColor">?attr/colorControlHighlight</item>
     </style>
 
 </resources>

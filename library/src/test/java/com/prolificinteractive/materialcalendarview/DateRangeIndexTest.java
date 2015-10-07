@@ -35,7 +35,7 @@ public class DateRangeIndexTest {
 
         assertEquals(2000 * 12 + 1, index.getCount());
 
-        Calendar worker = CalendarUtils.getInstance();
+        Calendar worker = Calendar.getInstance();
         minDay.copyToMonthOnly(worker);
         CalendarDay workingMonth = CalendarDay.from(worker);
         int counter = 0;

@@ -20,7 +20,7 @@ public final class CalendarDay implements Parcelable {
      */
     @NonNull
     public static CalendarDay today() {
-        return from(CalendarUtils.getInstance());
+        return from(Calendar.getInstance());
     }
 
     /**
@@ -47,9 +47,9 @@ public final class CalendarDay implements Parcelable {
             return null;
         }
         return from(
-                CalendarUtils.getYear(calendar),
-                CalendarUtils.getMonth(calendar),
-                CalendarUtils.getDay(calendar)
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DATE)
         );
     }
 
@@ -63,7 +63,9 @@ public final class CalendarDay implements Parcelable {
         if (date == null) {
             return null;
         }
-        return from(CalendarUtils.getInstance(date));
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return from(calendar);
     }
 
     private final int year;
@@ -140,7 +142,7 @@ public final class CalendarDay implements Parcelable {
     @NonNull
     public Calendar getCalendar() {
         if (_calendar == null) {
-            _calendar = CalendarUtils.getInstance();
+            _calendar = Calendar.getInstance();
             copyTo(_calendar);
         }
         return (Calendar) _calendar.clone();

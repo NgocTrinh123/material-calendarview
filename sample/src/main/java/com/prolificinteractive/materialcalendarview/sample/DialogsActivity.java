@@ -9,14 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
-import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -25,8 +19,6 @@ import butterknife.OnClick;
  * Shows off the most basic usage
  */
 public class DialogsActivity extends AppCompatActivity {
-
-    private static final DateFormat FORMATTER = SimpleDateFormat.getDateInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,9 +50,7 @@ public class DialogsActivity extends AppCompatActivity {
         }
     }
 
-    public static class SimpleCalendarDialogFragment extends DialogFragment implements OnDateSelectedListener {
-
-        private TextView textView;
+    public static class SimpleCalendarDialogFragment extends DialogFragment {
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -71,16 +61,7 @@ public class DialogsActivity extends AppCompatActivity {
         public void onViewCreated(View view, Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
 
-            textView = (TextView) view.findViewById(R.id.textView);
-
             MaterialCalendarView widget = (MaterialCalendarView) view.findViewById(R.id.calendarView);
-
-            widget.setOnDateChangedListener(this);
-        }
-
-        @Override
-        public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
-            textView.setText(FORMATTER.format(date.getDate()));
         }
     }
 }

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mcv_date_picker_prev_month_button">Previous month</string>
+    <string name="mcv_date_picker_next_month_button">Next month</string>
+</resources>

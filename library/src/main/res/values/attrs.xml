@@ -39,4 +39,28 @@
 
     </declare-styleable>
 
+    <attr name="mcv_calendarViewStyle"
+          format="reference"/>
+
+    <declare-styleable name="CalendarView">
+        <!-- The first day of week according to {@link java.util.Calendar}. -->
+        <attr name="firstDayOfWeek"
+              format="integer"/>
+        <!-- The text appearance for the month and year in the calendar header. -->
+        <attr name="monthTextAppearance"
+              format="reference"/>
+        <!-- The text appearance for the week day abbreviation in the calendar header. -->
+        <attr name="weekDayTextAppearance"
+              format="reference"/>
+        <!-- The text appearance for the day numbers in the calendar grid. -->
+        <attr name="dateTextAppearance"
+              format="reference"/>
+        <!-- @hide The background color used for the day selection indicator. -->
+        <attr name="daySelectorColor"
+              format="color"/>
+        <!-- @hide The background color used for the day highlight indicator. -->
+        <attr name="dayHighlightColor"
+              format="color"/>
+    </declare-styleable>
+
 </resources>

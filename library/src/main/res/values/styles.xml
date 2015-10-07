@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="TextAppearance.MaterialCalendarView.Header"
-        parent="android:TextAppearance.DeviceDefault.Small"
-        tools:ignore="ResourceName">
+    <style name="TextAppearance.MaterialCalendarView.Day"
+           parent="android:TextAppearance"
+           tools:ignore="ResourceName">
+        <item name="android:textSize">@dimen/mcv_date_picker_day_text_size</item>
+        <item name="android:textColor">@color/mcv_primary_text_inverse_when_activated_material
+        </item>
+    </style>
+
+    <style name="TextAppearance.MaterialCalendarView.DayOfWeek"
+           parent="android:TextAppearance"
+           tools:ignore="ResourceName">
+        <item name="android:textSize">@dimen/mcv_date_picker_day_of_week_text_size</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+    </style>
+
+    <style name="TextAppearance.MaterialCalendarView.Month"
+           parent="android:TextAppearance"
+           tools:ignore="ResourceName">
+        <item name="android:textSize">@dimen/mcv_date_picker_month_text_size</item>
         <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="TextAppearance.MaterialCalendarView.Date"
-        parent="android:TextAppearance.DeviceDefault.Small"
-        tools:ignore="ResourceName">
-        <item name="android:textSize">12sp</item>
-        <item name="android:textColor">@color/mcv_text_date_light</item>
-    </style>
-
-    <style name="TextAppearance.MaterialCalendarView.WeekDay"
-        parent="android:TextAppearance.DeviceDefault.Small"
-        tools:ignore="ResourceName">
-        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
 </resources>
