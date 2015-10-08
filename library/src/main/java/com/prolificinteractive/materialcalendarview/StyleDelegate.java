@@ -159,8 +159,9 @@ public class StyleDelegate {
         return dayOfWeekTextAppearanceResId;
     }
 
-    public void setDayOfWeekTextAppearance(int dayOfWeekTextAppearance) {
-        this.dayOfWeekTextAppearanceResId = dayOfWeekTextAppearance;
+    public void setDayOfWeekTextAppearance(int resId) {
+        this.dayOfWeekTextAppearanceResId = resId;
+        ViewUtils.applyTextAppearance(mContext, mDayOfWeekPaint, resId);
     }
 
     public int getArrowButtonColor() {
@@ -255,5 +256,37 @@ public class StyleDelegate {
         final float y = (monthView.getMonthHeight() - lineHeight) / 2f;
 
         drawMonthLabel(canvas, mMonthPaint, monthView.getTitle(), x, y);
+    }
+
+    private final Calendar mDayOfWeekLabelCalendar = Calendar.getInstance();
+
+    private CharSequence getDayOfWeekLabel(int dayOfWeek) {
+        mDayOfWeekLabelCalendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
+        return getWeekDayLabel(mDayOfWeekLabelCalendar.getTime());
+    }
+
+    public void drawDaysOfWeek(SimpleMonthView monthView, Canvas canvas) {
+        final TextPaint p = mDayOfWeekPaint;
+        final int headerHeight = monthView.getMonthHeight();
+        final int rowHeight = monthView.getDayOfWeekHeight();
+        final int colWidth = monthView.getCellWidth();
+
+        // Text is vertically centered within the day of week height.
+        final float halfLineHeight = (p.ascent() + p.descent()) / 2f;
+        final int rowCenter = headerHeight + rowHeight / 2;
+
+        for (int col = 0; col < SimpleMonthView.DAYS_IN_WEEK; col++) {
+            final int colCenter = colWidth * col + colWidth / 2;
+            final int colCenterRtl;
+            if (ViewUtils.isLayoutRtl(monthView)) {
+                colCenterRtl = monthView.getPaddedWidth() - colCenter;
+            } else {
+                colCenterRtl = colCenter;
+            }
+
+            final int dayOfWeek = (col + getFirstDayOfWeek()) % SimpleMonthView.DAYS_IN_WEEK;
+            final CharSequence label = getDayOfWeekLabel(dayOfWeek);
+            drawDayOfWeekLabel(canvas, p, label, colCenterRtl, rowCenter - halfLineHeight);
+        }
     }
 }

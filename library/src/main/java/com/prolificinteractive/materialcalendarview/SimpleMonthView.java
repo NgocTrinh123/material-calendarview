@@ -49,18 +49,16 @@ import java.util.List;
  */
 class SimpleMonthView extends View {
 
-    private static final int DAYS_IN_WEEK = 7;
+    protected static final int DAYS_IN_WEEK = 7;
     private static final int MAX_WEEKS_IN_MONTH = 6;
 
     private static final int DEFAULT_WEEK_START = Calendar.SUNDAY;
 
-    private final TextPaint mDayOfWeekPaint = new TextPaint();
     private final TextPaint mDayPaint = new TextPaint();
     private final Paint mDaySelectorPaint = new Paint();
     private final Paint mDayHighlightPaint = new Paint();
 
     private final Calendar mCalendar = Calendar.getInstance();
-    private final Calendar mDayOfWeekLabelCalendar = Calendar.getInstance();
 
     private final MonthViewTouchHelper mTouchHelper;
 
@@ -157,9 +155,8 @@ class SimpleMonthView extends View {
         return mCellWidth;
     }
 
-    public void setDayOfWeekTextAppearance(int resId) {
-        ViewUtils.applyTextAppearance(getContext(), mDayOfWeekPaint, resId);
-        invalidate();
+    public int getDayOfWeekHeight() {
+        return mDayOfWeekHeight;
     }
 
     public void setDayTextAppearance(int resId) {
@@ -187,12 +184,6 @@ class SimpleMonthView extends View {
         final int dayTextSize = res.getDimensionPixelSize(
                 R.dimen.mcv_date_picker_day_text_size);
 
-        mDayOfWeekPaint.setAntiAlias(true);
-        mDayOfWeekPaint.setTextSize(dayOfWeekTextSize);
-        mDayOfWeekPaint.setTypeface(Typeface.DEFAULT);
-        mDayOfWeekPaint.setTextAlign(Align.CENTER);
-        mDayOfWeekPaint.setStyle(Style.FILL);
-
         mDaySelectorPaint.setAntiAlias(true);
         mDaySelectorPaint.setStyle(Style.FILL);
 
@@ -209,7 +200,6 @@ class SimpleMonthView extends View {
     public void setStyleDelegate(StyleDelegate styleDelegate) {
         mStyleDelegate = styleDelegate;
 
-        setDayOfWeekTextAppearance(mStyleDelegate.getDayOfWeekTextAppearance());
         setDayTextAppearance(mStyleDelegate.getDayTextAppearance());
         setDaySelectorColor(mStyleDelegate.getSelectionColor());
         setDayHighlightColor(mStyleDelegate.getHighlightColor());
@@ -279,40 +269,10 @@ class SimpleMonthView extends View {
         canvas.translate(paddingLeft, paddingTop);
 
         mStyleDelegate.drawMonth(this, canvas);
-        drawDaysOfWeek(canvas);
+        mStyleDelegate.drawDaysOfWeek(this, canvas);
         drawDays(canvas);
 
         canvas.translate(-paddingLeft, -paddingTop);
-    }
-
-    private void drawDaysOfWeek(Canvas canvas) {
-        final TextPaint p = mDayOfWeekPaint;
-        final int headerHeight = mMonthHeight;
-        final int rowHeight = mDayOfWeekHeight;
-        final int colWidth = mCellWidth;
-
-        // Text is vertically centered within the day of week height.
-        final float halfLineHeight = (p.ascent() + p.descent()) / 2f;
-        final int rowCenter = headerHeight + rowHeight / 2;
-
-        for (int col = 0; col < DAYS_IN_WEEK; col++) {
-            final int colCenter = colWidth * col + colWidth / 2;
-            final int colCenterRtl;
-            if (ViewUtils.isLayoutRtl(this)) {
-                colCenterRtl = mPaddedWidth - colCenter;
-            } else {
-                colCenterRtl = colCenter;
-            }
-
-            final int dayOfWeek = (col + mWeekStart) % DAYS_IN_WEEK;
-            final CharSequence label = getDayOfWeekLabel(dayOfWeek);
-            mStyleDelegate.drawDayOfWeekLabel(canvas, p, label, colCenterRtl, rowCenter - halfLineHeight);
-        }
-    }
-
-    private CharSequence getDayOfWeekLabel(int dayOfWeek) {
-        mDayOfWeekLabelCalendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
-        return mStyleDelegate.getWeekDayLabel(mDayOfWeekLabelCalendar.getTime());
     }
 
     /**
