@@ -17,19 +17,12 @@
 package com.prolificinteractive.materialcalendarview;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
-import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Paint.Align;
-import android.graphics.Paint.Style;
 import android.graphics.Rect;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.widget.ExploreByTouchHelper;
-import android.text.TextPaint;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -53,10 +46,6 @@ class SimpleMonthView extends View {
     private static final int MAX_WEEKS_IN_MONTH = 6;
 
     private static final int DEFAULT_WEEK_START = Calendar.SUNDAY;
-
-    private final TextPaint mDayPaint = new TextPaint();
-    private final Paint mDaySelectorPaint = new Paint();
-    private final Paint mDayHighlightPaint = new Paint();
 
     private final Calendar mCalendar = Calendar.getInstance();
 
@@ -119,8 +108,6 @@ class SimpleMonthView extends View {
      */
     private OnDayClickListener mOnDayClickListener;
 
-    private ColorStateList mDayTextColor;
-
     private int mTouchedItem = -1;
     private StyleDelegate mStyleDelegate;
 
@@ -139,8 +126,6 @@ class SimpleMonthView extends View {
         mTouchHelper = new MonthViewTouchHelper(this);
         ViewCompat.setAccessibilityDelegate(this, mTouchHelper);
         ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
-
-        initPaints(getResources());
     }
 
     public int getPaddedWidth() {
@@ -159,13 +144,24 @@ class SimpleMonthView extends View {
         return mDayOfWeekHeight;
     }
 
-    public void setDayTextAppearance(int resId) {
-        final ColorStateList textColor = ViewUtils.applyTextAppearance(getContext(), mDayPaint, resId);
-        if (textColor != null) {
-            mDayTextColor = textColor;
-        }
+    public int getDayHeight() {
+        return mDayHeight;
+    }
 
-        invalidate();
+    public int getDaysInMonth() {
+        return mDaysInMonth;
+    }
+
+    public boolean isDayActivated(int day) {
+        return mActivatedDay == day;
+    }
+
+    public boolean isTouchedItem(int day) {
+        return mTouchedItem == day;
+    }
+
+    public int getDaySelectorRadius() {
+        return mDaySelectorRadius;
     }
 
     public CharSequence getTitle() {
@@ -175,47 +171,8 @@ class SimpleMonthView extends View {
         return mTitle;
     }
 
-    /**
-     * Sets up the text and style properties for painting.
-     */
-    private void initPaints(Resources res) {
-        final int dayOfWeekTextSize = res.getDimensionPixelSize(
-                R.dimen.mcv_date_picker_day_of_week_text_size);
-        final int dayTextSize = res.getDimensionPixelSize(
-                R.dimen.mcv_date_picker_day_text_size);
-
-        mDaySelectorPaint.setAntiAlias(true);
-        mDaySelectorPaint.setStyle(Style.FILL);
-
-        mDayHighlightPaint.setAntiAlias(true);
-        mDayHighlightPaint.setStyle(Style.FILL);
-
-        mDayPaint.setAntiAlias(true);
-        mDayPaint.setTextSize(dayTextSize);
-        mDayPaint.setTypeface(Typeface.DEFAULT);
-        mDayPaint.setTextAlign(Align.CENTER);
-        mDayPaint.setStyle(Style.FILL);
-    }
-
     public void setStyleDelegate(StyleDelegate styleDelegate) {
         mStyleDelegate = styleDelegate;
-
-        setDayTextAppearance(mStyleDelegate.getDayTextAppearance());
-        setDaySelectorColor(mStyleDelegate.getSelectionColor());
-        setDayHighlightColor(mStyleDelegate.getHighlightColor());
-
-        invalidate();
-    }
-
-    void setDaySelectorColor(ColorStateList dayBackgroundColor) {
-        final int activatedColor = dayBackgroundColor.getColorForState(ViewUtils.STATE_ACTIVATED, 0);
-        mDaySelectorPaint.setColor(activatedColor);
-        invalidate();
-    }
-
-    void setDayHighlightColor(ColorStateList dayHighlightColor) {
-        final int pressedColor = dayHighlightColor.getColorForState(ViewUtils.STATE_PRESSED, 0);
-        mDayHighlightPaint.setColor(pressedColor);
         invalidate();
     }
 
@@ -270,73 +227,12 @@ class SimpleMonthView extends View {
 
         mStyleDelegate.drawMonth(this, canvas);
         mStyleDelegate.drawDaysOfWeek(this, canvas);
-        drawDays(canvas);
+        mStyleDelegate.drawDays(this, canvas);
 
         canvas.translate(-paddingLeft, -paddingTop);
     }
 
-    /**
-     * Draws the month days.
-     */
-    private void drawDays(Canvas canvas) {
-        final TextPaint p = mDayPaint;
-        final int headerHeight = mMonthHeight + mDayOfWeekHeight;
-        final int rowHeight = mDayHeight;
-        final int colWidth = mCellWidth;
-
-        // Text is vertically centered within the row height.
-        final float halfLineHeight = (p.ascent() + p.descent()) / 2f;
-        int rowCenter = headerHeight + rowHeight / 2;
-
-        for (int day = 1, col = findDayOffset(); day <= mDaysInMonth; day++) {
-            final int colCenter = colWidth * col + colWidth / 2;
-            final int colCenterRtl;
-            if (ViewUtils.isLayoutRtl(this)) {
-                colCenterRtl = mPaddedWidth - colCenter;
-            } else {
-                colCenterRtl = colCenter;
-            }
-
-            int[] stateMask;
-
-            final boolean isDayEnabled = isDayEnabled(day);
-
-            final boolean isDayActivated = mActivatedDay == day;
-            if (isDayActivated) {
-                stateMask = ViewUtils.STATE_ACTIVATED;
-
-                // Adjust the circle to be centered on the row.
-                mStyleDelegate.drawDaySelected(canvas, mDaySelectorPaint,
-                        colCenterRtl, rowCenter,
-                        mDaySelectorRadius);
-
-            } else if (mTouchedItem == day) {
-                stateMask = ViewUtils.STATE_PRESSED;
-
-                if (isDayEnabled) {
-                    // Adjust the circle to be centered on the row.
-                    mStyleDelegate.drawDayPressed(canvas, mDayHighlightPaint,
-                            colCenterRtl, rowCenter,
-                            mDaySelectorRadius);
-                }
-            } else {
-                stateMask = isDayEnabled ? ViewUtils.STATE_ENALBED : ViewUtils.STATE_DISALBED;
-            }
-
-            p.setColor(mDayTextColor.getColorForState(stateMask, 0));
-
-            mStyleDelegate.drawDayLabel(canvas, p, mStyleDelegate.getDayLabel(day), colCenterRtl, rowCenter - halfLineHeight);
-
-            col++;
-
-            if (col == DAYS_IN_WEEK) {
-                col = 0;
-                rowCenter += rowHeight;
-            }
-        }
-    }
-
-    private boolean isDayEnabled(int day) {
+    public boolean isDayEnabled(int day) {
         return day >= mEnabledDayStart && day <= mEnabledDayEnd;
     }
 
@@ -520,7 +416,7 @@ class SimpleMonthView extends View {
         mTouchHelper.invalidateRoot();
     }
 
-    private int findDayOffset() {
+    public int findDayOffset() {
         final int offset = mDayOfWeekStart - mWeekStart;
         if (mDayOfWeekStart < mWeekStart) {
             return offset + DAYS_IN_WEEK;
