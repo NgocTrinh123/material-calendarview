@@ -76,13 +76,6 @@ class SimpleMonthView extends View {
     private final SimpleDateFormat mDayOfWeekFormatter;
     private final NumberFormat mDayFormatter;
 
-    // Desired dimensions.
-    private final int mDesiredMonthHeight;
-    private final int mDesiredDayOfWeekHeight;
-    private final int mDesiredDayHeight;
-    private final int mDesiredCellWidth;
-    private final int mDesiredDaySelectorRadius;
-
     private CharSequence mTitle;
 
     private int mMonth;
@@ -156,20 +149,12 @@ class SimpleMonthView extends View {
     public SimpleMonthView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        final Resources res = context.getResources();
-        mDesiredMonthHeight = res.getDimensionPixelSize(R.dimen.mcv_date_picker_month_height);
-        mDesiredDayOfWeekHeight = res.getDimensionPixelSize(R.dimen.mcv_date_picker_day_of_week_height);
-        mDesiredDayHeight = res.getDimensionPixelSize(R.dimen.mcv_date_picker_day_height);
-        mDesiredCellWidth = res.getDimensionPixelSize(R.dimen.mcv_date_picker_day_width);
-        mDesiredDaySelectorRadius = res.getDimensionPixelSize(
-                R.dimen.mcv_date_picker_day_selector_radius);
-
         // Set up accessibility components.
         mTouchHelper = new MonthViewTouchHelper(this);
         ViewCompat.setAccessibilityDelegate(this, mTouchHelper);
         ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
 
-        final Locale locale = res.getConfiguration().locale;
+        final Locale locale = getResources().getConfiguration().locale;
         final String titleFormat;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             titleFormat = DateFormat.getBestDateTimePattern(locale, DEFAULT_TITLE_FORMAT);
@@ -180,7 +165,7 @@ class SimpleMonthView extends View {
         mDayOfWeekFormatter = new SimpleDateFormat(DAY_OF_WEEK_FORMAT, locale);
         mDayFormatter = NumberFormat.getIntegerInstance(locale);
 
-        initPaints(res);
+        initPaints(getResources());
     }
 
     public int getMonthHeight() {
@@ -583,17 +568,13 @@ class SimpleMonthView extends View {
         }
     }
 
-    private boolean sameDay(int day, Calendar today) {
-        return mYear == today.get(Calendar.YEAR) && mMonth == today.get(Calendar.MONTH)
-                && day == today.get(Calendar.DAY_OF_MONTH);
-    }
-
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        final int preferredHeight = mDesiredDayHeight * MAX_WEEKS_IN_MONTH
-                + mDesiredDayOfWeekHeight + mDesiredMonthHeight
+        final int preferredHeight = mStyleDelegate.getDesiredDayHeight() * MAX_WEEKS_IN_MONTH
+                + mStyleDelegate.getDesiredDayOfWeekHeight()
+                + mStyleDelegate.getDesiredMonthHeight()
                 + getPaddingTop() + getPaddingBottom();
-        final int preferredWidth = mDesiredCellWidth * DAYS_IN_WEEK
+        final int preferredWidth = mStyleDelegate.getDesiredCellWidth() * DAYS_IN_WEEK
                 + ViewCompat.getPaddingStart(this) + ViewCompat.getPaddingEnd(this);
         final int resolvedWidth = resolveSize(preferredWidth, widthMeasureSpec);
         final int resolvedHeight = resolveSize(preferredHeight, heightMeasureSpec);
@@ -635,18 +616,18 @@ class SimpleMonthView extends View {
         // scale all dimensions to fit.
         final int measuredPaddedHeight = getMeasuredHeight() - paddingTop - paddingBottom;
         final float scaleH = paddedHeight / (float) measuredPaddedHeight;
-        final int monthHeight = (int) (mDesiredMonthHeight * scaleH);
+        final int monthHeight = (int) (mStyleDelegate.getDesiredMonthHeight() * scaleH);
         final int cellWidth = mPaddedWidth / DAYS_IN_WEEK;
         mMonthHeight = monthHeight;
-        mDayOfWeekHeight = (int) (mDesiredDayOfWeekHeight * scaleH);
-        mDayHeight = (int) (mDesiredDayHeight * scaleH);
+        mDayOfWeekHeight = (int) (mStyleDelegate.getDesiredDayOfWeekHeight() * scaleH);
+        mDayHeight = (int) (mStyleDelegate.getDesiredDayHeight() * scaleH);
         mCellWidth = cellWidth;
 
         // Compute the largest day selector radius that's still within the clip
         // bounds and desired selector radius.
         final int maxSelectorWidth = cellWidth / 2 + Math.min(paddingLeft, paddingRight);
         final int maxSelectorHeight = mDayHeight / 2 + paddingBottom;
-        mDaySelectorRadius = Math.min(mDesiredDaySelectorRadius,
+        mDaySelectorRadius = Math.min(mStyleDelegate.getDesiredDaySelectorRadius(),
                 Math.min(maxSelectorWidth, maxSelectorHeight));
 
         // Invalidate cached accessibility information.

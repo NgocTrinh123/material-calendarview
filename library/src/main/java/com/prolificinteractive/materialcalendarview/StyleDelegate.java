@@ -2,6 +2,7 @@ package com.prolificinteractive.materialcalendarview;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -14,6 +15,12 @@ import com.prolificinteractive.materialcalendarview.utils.ViewUtils;
 import java.util.Calendar;
 
 public class StyleDelegate {
+
+    private final int mDesiredMonthHeight;
+    private final int mDesiredDayOfWeekHeight;
+    private final int mDesiredDayHeight;
+    private final int mDesiredCellWidth;
+    private final int mDesiredDaySelectorRadius;
 
     private int monthTextAppearanceResId;
     private int dayOfWeekTextAppearanceResId;
@@ -49,6 +56,14 @@ public class StyleDelegate {
         dayHighlightColor = ViewUtils.getThemeColorControlHighlight(context);
 
         a.recycle();
+
+        final Resources res = context.getResources();
+        mDesiredMonthHeight = res.getDimensionPixelSize(R.dimen.mcv_date_picker_month_height);
+        mDesiredDayOfWeekHeight = res.getDimensionPixelSize(R.dimen.mcv_date_picker_day_of_week_height);
+        mDesiredDayHeight = res.getDimensionPixelSize(R.dimen.mcv_date_picker_day_height);
+        mDesiredCellWidth = res.getDimensionPixelSize(R.dimen.mcv_date_picker_day_width);
+        mDesiredDaySelectorRadius = res.getDimensionPixelSize(
+                R.dimen.mcv_date_picker_day_selector_radius);
     }
 
     public int getFirstDayOfWeek() {
@@ -121,5 +136,25 @@ public class StyleDelegate {
 
     public void drawDaySelected(Canvas canvas, Paint paint, float x, float y, float radius) {
         canvas.drawCircle(x, y, radius, paint);
+    }
+
+    public int getDesiredMonthHeight() {
+        return mDesiredMonthHeight;
+    }
+
+    public int getDesiredDayOfWeekHeight() {
+        return mDesiredDayOfWeekHeight;
+    }
+
+    public int getDesiredDayHeight() {
+        return mDesiredDayHeight;
+    }
+
+    public int getDesiredDaySelectorRadius() {
+        return mDesiredDaySelectorRadius;
+    }
+
+    public int getDesiredCellWidth() {
+        return mDesiredCellWidth;
     }
 }
