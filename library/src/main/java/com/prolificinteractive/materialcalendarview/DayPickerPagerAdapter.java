@@ -190,7 +190,7 @@ class DayPickerPagerAdapter extends PagerAdapter {
             enabledDayRangeEnd = 31;
         }
 
-        v.setMonthParams(selectedDay, month, year, mStyleDelegate.getFirstDayOfWeek(), enabledDayRangeStart, enabledDayRangeEnd);
+        v.setMonthParams(selectedDay, month, year, enabledDayRangeStart, enabledDayRangeEnd);
 
         final ViewHolder holder = new ViewHolder(position, itemView, v);
         mItems.put(position, holder);

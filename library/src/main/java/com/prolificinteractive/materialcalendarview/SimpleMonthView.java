@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import com.prolificinteractive.materialcalendarview.utils.CalendarUtils;
 import com.prolificinteractive.materialcalendarview.utils.MathUtils;
 import com.prolificinteractive.materialcalendarview.utils.ViewUtils;
 
@@ -41,9 +42,6 @@ import java.util.List;
  * within the specified month.
  */
 class SimpleMonthView extends View {
-
-    protected static final int DAYS_IN_WEEK = 7;
-    private static final int MAX_WEEKS_IN_MONTH = 6;
 
     private final Calendar mCalendar = Calendar.getInstance();
 
@@ -228,14 +226,6 @@ class SimpleMonthView extends View {
         return day >= 1 && day <= mDaysInMonth;
     }
 
-    private static boolean isValidDayOfWeek(int day) {
-        return day >= Calendar.SUNDAY && day <= Calendar.SATURDAY;
-    }
-
-    private static boolean isValidMonth(int month) {
-        return month >= Calendar.JANUARY && month <= Calendar.DECEMBER;
-    }
-
     /**
      * Sets the selected day.
      *
@@ -261,16 +251,13 @@ class SimpleMonthView extends View {
      * @param selectedDay     the selected day of the month, or -1 for no selection
      * @param month           the month
      * @param year            the year
-     * @param weekStart       which day the week should start on, valid values are
-     *                        {@link Calendar#SUNDAY} through {@link Calendar#SATURDAY}
      * @param enabledDayStart the first enabled day
      * @param enabledDayEnd   the last enabled day
      */
-    void setMonthParams(int selectedDay, int month, int year, int weekStart, int enabledDayStart,
-                        int enabledDayEnd) {
+    void setMonthParams(int selectedDay, int month, int year, int enabledDayStart, int enabledDayEnd) {
         mActivatedDay = selectedDay;
 
-        if (isValidMonth(month)) {
+        if (CalendarUtils.isValidMonth(month)) {
             mMonth = month;
         }
         mYear = year;
@@ -280,7 +267,7 @@ class SimpleMonthView extends View {
         mCalendar.set(Calendar.DAY_OF_MONTH, 1);
         mDayOfWeekStart = mCalendar.get(Calendar.DAY_OF_WEEK);
 
-        mDaysInMonth = getDaysInMonth(mMonth, mYear);
+        mDaysInMonth = CalendarUtils.getDaysInMonth(mMonth, mYear);
 
         mEnabledDayStart = MathUtils.constrain(enabledDayStart, 1, mDaysInMonth);
         mEnabledDayEnd = MathUtils.constrain(enabledDayEnd, mEnabledDayStart, mDaysInMonth);
@@ -292,35 +279,13 @@ class SimpleMonthView extends View {
         mTouchHelper.invalidateRoot();
     }
 
-    private static int getDaysInMonth(int month, int year) {
-        switch (month) {
-            case Calendar.JANUARY:
-            case Calendar.MARCH:
-            case Calendar.MAY:
-            case Calendar.JULY:
-            case Calendar.AUGUST:
-            case Calendar.OCTOBER:
-            case Calendar.DECEMBER:
-                return 31;
-            case Calendar.APRIL:
-            case Calendar.JUNE:
-            case Calendar.SEPTEMBER:
-            case Calendar.NOVEMBER:
-                return 30;
-            case Calendar.FEBRUARY:
-                return (year % 4 == 0) ? 29 : 28;
-            default:
-                throw new IllegalArgumentException("Invalid Month");
-        }
-    }
-
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        final int preferredHeight = mStyleDelegate.getDesiredDayHeight() * MAX_WEEKS_IN_MONTH
+        final int preferredHeight = mStyleDelegate.getDesiredDayHeight() * CalendarUtils.MAX_WEEKS_IN_MONTH
                 + mStyleDelegate.getDesiredDayOfWeekHeight()
                 + mStyleDelegate.getDesiredMonthHeight()
                 + getPaddingTop() + getPaddingBottom();
-        final int preferredWidth = mStyleDelegate.getDesiredCellWidth() * DAYS_IN_WEEK
+        final int preferredWidth = mStyleDelegate.getDesiredCellWidth() * CalendarUtils.DAYS_IN_WEEK
                 + ViewCompat.getPaddingStart(this) + ViewCompat.getPaddingEnd(this);
         final int resolvedWidth = resolveSize(preferredWidth, widthMeasureSpec);
         final int resolvedHeight = resolveSize(preferredHeight, heightMeasureSpec);
@@ -363,7 +328,7 @@ class SimpleMonthView extends View {
         final int measuredPaddedHeight = getMeasuredHeight() - paddingTop - paddingBottom;
         final float scaleH = paddedHeight / (float) measuredPaddedHeight;
         final int monthHeight = (int) (mStyleDelegate.getDesiredMonthHeight() * scaleH);
-        final int cellWidth = mPaddedWidth / DAYS_IN_WEEK;
+        final int cellWidth = mPaddedWidth / CalendarUtils.DAYS_IN_WEEK;
         mMonthHeight = monthHeight;
         mDayOfWeekHeight = (int) (mStyleDelegate.getDesiredDayOfWeekHeight() * scaleH);
         mDayHeight = (int) (mStyleDelegate.getDesiredDayHeight() * scaleH);
@@ -384,7 +349,7 @@ class SimpleMonthView extends View {
         final int weekStart = mStyleDelegate.getFirstDayOfWeek();
         final int offset = mDayOfWeekStart - weekStart;
         if (mDayOfWeekStart < weekStart) {
-            return offset + DAYS_IN_WEEK;
+            return offset + CalendarUtils.DAYS_IN_WEEK;
         }
         return offset;
     }
@@ -419,8 +384,8 @@ class SimpleMonthView extends View {
         }
 
         final int row = (paddedY - headerHeight) / mDayHeight;
-        final int col = (paddedXRtl * DAYS_IN_WEEK) / mPaddedWidth;
-        final int index = col + row * DAYS_IN_WEEK;
+        final int col = (paddedXRtl * CalendarUtils.DAYS_IN_WEEK) / mPaddedWidth;
+        final int index = col + row * CalendarUtils.DAYS_IN_WEEK;
         final int day = index + 1 - findDayOffset();
         if (!isValidDayOfMonth(day)) {
             return -1;
@@ -443,7 +408,7 @@ class SimpleMonthView extends View {
         final int index = id - 1 + findDayOffset();
 
         // Compute left edge, taking into account RTL.
-        final int col = index % DAYS_IN_WEEK;
+        final int col = index % CalendarUtils.DAYS_IN_WEEK;
         final int colWidth = mCellWidth;
         final int left;
         if (ViewUtils.isLayoutRtl(this)) {
@@ -453,7 +418,7 @@ class SimpleMonthView extends View {
         }
 
         // Compute top edge.
-        final int row = index / DAYS_IN_WEEK;
+        final int row = index / CalendarUtils.DAYS_IN_WEEK;
         final int rowHeight = mDayHeight;
         final int headerHeight = mMonthHeight + mDayOfWeekHeight;
         final int top = getPaddingTop() + headerHeight + row * rowHeight;

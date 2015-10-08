@@ -13,6 +13,7 @@ import android.text.TextPaint;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
 
+import com.prolificinteractive.materialcalendarview.utils.CalendarUtils;
 import com.prolificinteractive.materialcalendarview.utils.ViewUtils;
 
 import java.text.NumberFormat;
@@ -266,7 +267,7 @@ public class StyleDelegate {
         final float halfLineHeight = (p.ascent() + p.descent()) / 2f;
         final int rowCenter = headerHeight + rowHeight / 2;
 
-        for (int col = 0; col < SimpleMonthView.DAYS_IN_WEEK; col++) {
+        for (int col = 0; col < CalendarUtils.DAYS_IN_WEEK; col++) {
             final int colCenter = colWidth * col + colWidth / 2;
             final int colCenterRtl;
             if (ViewUtils.isLayoutRtl(monthView)) {
@@ -275,7 +276,7 @@ public class StyleDelegate {
                 colCenterRtl = colCenter;
             }
 
-            final int dayOfWeek = (col + getFirstDayOfWeek()) % SimpleMonthView.DAYS_IN_WEEK;
+            final int dayOfWeek = (col + getFirstDayOfWeek()) % CalendarUtils.DAYS_IN_WEEK;
             final CharSequence label = getDayOfWeekLabel(dayOfWeek);
             drawDayOfWeekLabel(canvas, p, label, colCenterRtl, rowCenter - halfLineHeight);
         }
@@ -332,7 +333,7 @@ public class StyleDelegate {
 
             col++;
 
-            if (col == SimpleMonthView.DAYS_IN_WEEK) {
+            if (col == CalendarUtils.DAYS_IN_WEEK) {
                 col = 0;
                 rowCenter += rowHeight;
             }
