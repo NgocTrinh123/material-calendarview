@@ -268,7 +268,7 @@ public class MaterialCalendarView extends ViewGroup {
 
     public void setFirstDayOfWeek(int firstDayOfWeek) {
         mStyleDelegate.setFirstDayOfWeek(firstDayOfWeek);
-        mAdapter.setFirstDayOfWeek(firstDayOfWeek);
+        onStyleChanged();
     }
 
     public int getFirstDayOfWeek() {

@@ -72,23 +72,6 @@ class DayPickerPagerAdapter extends PagerAdapter {
     }
 
     /**
-     * Sets the first day of the week.
-     *
-     * @param weekStart which day the week should start on, valid values are
-     *                  {@link Calendar#SUNDAY} through {@link Calendar#SATURDAY}
-     */
-    public void setFirstDayOfWeek(int weekStart) {
-        mStyleDelegate.setFirstDayOfWeek(weekStart);
-
-        // Update displayed views.
-        final int count = mItems.size();
-        for (int i = 0; i < count; i++) {
-            final SimpleMonthView monthView = mItems.valueAt(i).calendar;
-            monthView.setFirstDayOfWeek(weekStart);
-        }
-    }
-
-    /**
      * Sets the selected day.
      *
      * @param day the selected day
