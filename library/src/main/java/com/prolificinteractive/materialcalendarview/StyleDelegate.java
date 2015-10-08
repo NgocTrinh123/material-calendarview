@@ -7,14 +7,23 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Build;
 import android.text.TextPaint;
+import android.text.format.DateFormat;
 import android.util.AttributeSet;
 
 import com.prolificinteractive.materialcalendarview.utils.ViewUtils;
 
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 public class StyleDelegate {
+
+    private static final String DEFAULT_TITLE_FORMAT = "MMMM y";
+    private static final String DAY_OF_WEEK_FORMAT = "E";
 
     private final int mDesiredMonthHeight;
     private final int mDesiredDayOfWeekHeight;
@@ -28,6 +37,10 @@ public class StyleDelegate {
     private ColorStateList daySelectorColor;
     private int firstDayOfWeek;
     private ColorStateList dayHighlightColor;
+
+    private final SimpleDateFormat mTitleFormatter;
+    private final SimpleDateFormat mDayOfWeekFormatter;
+    private final NumberFormat mDayFormatter;
 
     //TODO
     private ColorStateList monthTextColor = null;
@@ -64,6 +77,17 @@ public class StyleDelegate {
         mDesiredCellWidth = res.getDimensionPixelSize(R.dimen.mcv_date_picker_day_width);
         mDesiredDaySelectorRadius = res.getDimensionPixelSize(
                 R.dimen.mcv_date_picker_day_selector_radius);
+
+        final Locale locale = res.getConfiguration().locale;
+        final String titleFormat;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            titleFormat = DateFormat.getBestDateTimePattern(locale, DEFAULT_TITLE_FORMAT);
+        } else {
+            titleFormat = DEFAULT_TITLE_FORMAT;
+        }
+        mTitleFormatter = new SimpleDateFormat(titleFormat, locale);
+        mDayOfWeekFormatter = new SimpleDateFormat(DAY_OF_WEEK_FORMAT, locale);
+        mDayFormatter = NumberFormat.getIntegerInstance(locale);
     }
 
     public int getFirstDayOfWeek() {
@@ -156,5 +180,17 @@ public class StyleDelegate {
 
     public int getDesiredCellWidth() {
         return mDesiredCellWidth;
+    }
+
+    public CharSequence getMonthLabel(Date time) {
+        return mTitleFormatter.format(time);
+    }
+
+    public CharSequence getWeekDayLabel(Date time) {
+        return mDayOfWeekFormatter.format(time);
+    }
+
+    public CharSequence getDayLabel(int id) {
+        return mDayFormatter.format(id);
     }
 }

@@ -25,7 +25,6 @@ import android.graphics.Paint.Align;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
@@ -41,11 +40,8 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import com.prolificinteractive.materialcalendarview.utils.MathUtils;
 import com.prolificinteractive.materialcalendarview.utils.ViewUtils;
 
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * A calendar-like view displaying a specified month and the appropriate selectable day numbers
@@ -58,9 +54,6 @@ class SimpleMonthView extends View {
 
     private static final int DEFAULT_WEEK_START = Calendar.SUNDAY;
 
-    private static final String DEFAULT_TITLE_FORMAT = "MMMM y";
-    private static final String DAY_OF_WEEK_FORMAT = "E";
-
     private final TextPaint mMonthPaint = new TextPaint();
     private final TextPaint mDayOfWeekPaint = new TextPaint();
     private final TextPaint mDayPaint = new TextPaint();
@@ -71,10 +64,6 @@ class SimpleMonthView extends View {
     private final Calendar mDayOfWeekLabelCalendar = Calendar.getInstance();
 
     private final MonthViewTouchHelper mTouchHelper;
-
-    private final SimpleDateFormat mTitleFormatter;
-    private final SimpleDateFormat mDayOfWeekFormatter;
-    private final NumberFormat mDayFormatter;
 
     private CharSequence mTitle;
 
@@ -154,17 +143,6 @@ class SimpleMonthView extends View {
         ViewCompat.setAccessibilityDelegate(this, mTouchHelper);
         ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
 
-        final Locale locale = getResources().getConfiguration().locale;
-        final String titleFormat;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            titleFormat = DateFormat.getBestDateTimePattern(locale, DEFAULT_TITLE_FORMAT);
-        } else {
-            titleFormat = DEFAULT_TITLE_FORMAT;
-        }
-        mTitleFormatter = new SimpleDateFormat(titleFormat, locale);
-        mDayOfWeekFormatter = new SimpleDateFormat(DAY_OF_WEEK_FORMAT, locale);
-        mDayFormatter = NumberFormat.getIntegerInstance(locale);
-
         initPaints(getResources());
     }
 
@@ -198,7 +176,7 @@ class SimpleMonthView extends View {
 
     public CharSequence getTitle() {
         if (mTitle == null) {
-            mTitle = mTitleFormatter.format(mCalendar.getTime());
+            mTitle = mStyleDelegate.getMonthLabel(mCalendar.getTime());
         }
         return mTitle;
     }
@@ -379,14 +357,14 @@ class SimpleMonthView extends View {
             }
 
             final int dayOfWeek = (col + mWeekStart) % DAYS_IN_WEEK;
-            final String label = getDayOfWeekLabel(dayOfWeek);
+            final CharSequence label = getDayOfWeekLabel(dayOfWeek);
             mStyleDelegate.drawDayOfWeekLabel(canvas, p, label, colCenterRtl, rowCenter - halfLineHeight);
         }
     }
 
-    private String getDayOfWeekLabel(int dayOfWeek) {
+    private CharSequence getDayOfWeekLabel(int dayOfWeek) {
         mDayOfWeekLabelCalendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
-        return mDayOfWeekFormatter.format(mDayOfWeekLabelCalendar.getTime());
+        return mStyleDelegate.getWeekDayLabel(mDayOfWeekLabelCalendar.getTime());
     }
 
     /**
@@ -439,7 +417,7 @@ class SimpleMonthView extends View {
 
             p.setColor(mDayTextColor.getColorForState(stateMask, 0));
 
-            mStyleDelegate.drawDayLabel(canvas, p, mDayFormatter.format(day), colCenterRtl, rowCenter - halfLineHeight);
+            mStyleDelegate.drawDayLabel(canvas, p, mStyleDelegate.getDayLabel(day), colCenterRtl, rowCenter - halfLineHeight);
 
             col++;
 
@@ -838,7 +816,7 @@ class SimpleMonthView extends View {
          */
         private CharSequence getDayText(int id) {
             if (isValidDayOfMonth(id)) {
-                return mDayFormatter.format(id);
+                return mStyleDelegate.getDayLabel(id);
             }
 
             return null;
