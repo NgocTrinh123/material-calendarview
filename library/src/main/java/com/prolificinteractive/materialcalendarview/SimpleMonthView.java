@@ -19,7 +19,6 @@ package com.prolificinteractive.materialcalendarview;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
@@ -53,11 +52,6 @@ import java.util.Locale;
  * within the specified month.
  */
 class SimpleMonthView extends View {
-
-    private static final int[] STATE_ACTIVATED = {android.R.attr.state_enabled, android.R.attr.state_activated};
-    private static final int[] STATE_PRESSED = {android.R.attr.state_enabled, android.R.attr.state_pressed};
-    private static final int[] STATE_ENALBED = {android.R.attr.state_enabled};
-    private static final int[] STATE_DISALBED = {};
 
     private static final int DAYS_IN_WEEK = 7;
     private static final int MAX_WEEKS_IN_MONTH = 6;
@@ -189,37 +183,6 @@ class SimpleMonthView extends View {
         initPaints(res);
     }
 
-    /**
-     * Applies the specified text appearance resource to a paint, returning the
-     * text color if one is set in the text appearance.
-     *
-     * @param p     the paint to modify
-     * @param resId the resource ID of the text appearance
-     * @return the text color, if available
-     */
-    private ColorStateList applyTextAppearance(Paint p, int resId) {
-        int[] attrs = {android.R.attr.textSize, android.R.attr.textColor};
-        final TypedArray ta = getContext().obtainStyledAttributes(null, attrs, 0, resId);
-
-// TODO fontFamily
-//        final String fontFamily = ta.getString(R.styleable.TextAppearance_fontFamily);
-//        if (fontFamily != null) {
-//            p.setTypeface(Typeface.create(fontFamily, 0));
-//        }
-
-        p.setTextSize(ta.getDimensionPixelSize(0, (int) p.getTextSize()));
-
-        final ColorStateList textColor = ta.getColorStateList(1);
-        if (textColor != null) {
-            final int enabledColor = textColor.getColorForState(ENABLED_STATE_SET, 0);
-            p.setColor(enabledColor);
-        }
-
-        ta.recycle();
-
-        return textColor;
-    }
-
     public int getMonthHeight() {
         return mMonthHeight;
     }
@@ -229,18 +192,18 @@ class SimpleMonthView extends View {
     }
 
     public void setMonthTextAppearance(int resId) {
-        applyTextAppearance(mMonthPaint, resId);
+        ViewUtils.applyTextAppearance(getContext(), mMonthPaint, resId);
 
         invalidate();
     }
 
     public void setDayOfWeekTextAppearance(int resId) {
-        applyTextAppearance(mDayOfWeekPaint, resId);
+        ViewUtils.applyTextAppearance(getContext(), mDayOfWeekPaint, resId);
         invalidate();
     }
 
     public void setDayTextAppearance(int resId) {
-        final ColorStateList textColor = applyTextAppearance(mDayPaint, resId);
+        final ColorStateList textColor = ViewUtils.applyTextAppearance(getContext(), mDayPaint, resId);
         if (textColor != null) {
             mDayTextColor = textColor;
         }
@@ -334,13 +297,13 @@ class SimpleMonthView extends View {
     }
 
     void setDaySelectorColor(ColorStateList dayBackgroundColor) {
-        final int activatedColor = dayBackgroundColor.getColorForState(STATE_ACTIVATED, 0);
+        final int activatedColor = dayBackgroundColor.getColorForState(ViewUtils.STATE_ACTIVATED, 0);
         mDaySelectorPaint.setColor(activatedColor);
         invalidate();
     }
 
     void setDayHighlightColor(ColorStateList dayHighlightColor) {
-        final int pressedColor = dayHighlightColor.getColorForState(STATE_PRESSED, 0);
+        final int pressedColor = dayHighlightColor.getColorForState(ViewUtils.STATE_PRESSED, 0);
         mDayHighlightPaint.setColor(pressedColor);
         invalidate();
     }
@@ -469,7 +432,7 @@ class SimpleMonthView extends View {
 
             final boolean isDayActivated = mActivatedDay == day;
             if (isDayActivated) {
-                stateMask = STATE_ACTIVATED;
+                stateMask = ViewUtils.STATE_ACTIVATED;
 
                 // Adjust the circle to be centered on the row.
                 mStyleDelegate.drawDaySelected(canvas, mDaySelectorPaint,
@@ -477,7 +440,7 @@ class SimpleMonthView extends View {
                         mDaySelectorRadius);
 
             } else if (mTouchedItem == day) {
-                stateMask = STATE_PRESSED;
+                stateMask = ViewUtils.STATE_PRESSED;
 
                 if (isDayEnabled) {
                     // Adjust the circle to be centered on the row.
@@ -486,7 +449,7 @@ class SimpleMonthView extends View {
                             mDaySelectorRadius);
                 }
             } else {
-                stateMask = isDayEnabled ? STATE_ENALBED : STATE_DISALBED;
+                stateMask = isDayEnabled ? ViewUtils.STATE_ENALBED : ViewUtils.STATE_DISALBED;
             }
 
             p.setColor(mDayTextColor.getColorForState(stateMask, 0));
@@ -586,16 +549,7 @@ class SimpleMonthView extends View {
             mWeekStart = mCalendar.getFirstDayOfWeek();
         }
 
-        // Figure out what day today is.
-        final Calendar today = Calendar.getInstance();
-//        mToday = -1;
         mDaysInMonth = getDaysInMonth(mMonth, mYear);
-        for (int i = 0; i < mDaysInMonth; i++) {
-            final int day = i + 1;
-            if (sameDay(day, today)) {
-//                mToday = day;
-            }
-        }
 
         mEnabledDayStart = MathUtils.constrain(enabledDayStart, 1, mDaysInMonth);
         mEnabledDayEnd = MathUtils.constrain(enabledDayEnd, mEnabledDayStart, mDaysInMonth);
