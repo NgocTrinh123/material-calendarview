@@ -45,8 +45,6 @@ class SimpleMonthView extends View {
     protected static final int DAYS_IN_WEEK = 7;
     private static final int MAX_WEEKS_IN_MONTH = 6;
 
-    private static final int DEFAULT_WEEK_START = Calendar.SUNDAY;
-
     private final Calendar mCalendar = Calendar.getInstance();
 
     private final MonthViewTouchHelper mTouchHelper;
@@ -70,17 +68,6 @@ class SimpleMonthView extends View {
      * The day of month for the selected day, or -1 if no day is selected.
      */
     private int mActivatedDay = -1;
-
-    /**
-     * The day of month for today, or -1 if the today is not in the current
-     * month.
-     */
-//    private int mToday = DEFAULT_SELECTED_DAY;
-
-    /**
-     * The first day of the week (ex. Calendar.SUNDAY).
-     */
-    private int mWeekStart = DEFAULT_WEEK_START;
 
     /**
      * The number of days (ex. 28) in the current month.
@@ -173,6 +160,7 @@ class SimpleMonthView extends View {
 
     public void setStyleDelegate(StyleDelegate styleDelegate) {
         mStyleDelegate = styleDelegate;
+        mTouchHelper.invalidateRoot();
         invalidate();
     }
 
@@ -263,24 +251,6 @@ class SimpleMonthView extends View {
     }
 
     /**
-     * Sets the first day of the week.
-     *
-     * @param weekStart which day the week should start on, valid values are
-     *                  {@link Calendar#SUNDAY} through {@link Calendar#SATURDAY}
-     */
-    public void setFirstDayOfWeek(int weekStart) {
-        if (isValidDayOfWeek(weekStart)) {
-            mWeekStart = weekStart;
-        } else {
-            mWeekStart = mCalendar.getFirstDayOfWeek();
-        }
-
-        // Invalidate cached accessibility information.
-        mTouchHelper.invalidateRoot();
-        invalidate();
-    }
-
-    /**
      * Sets all the parameters for displaying this week.
      * <p/>
      * Parameters have a default value and will only update if a new value is
@@ -309,12 +279,6 @@ class SimpleMonthView extends View {
         mCalendar.set(Calendar.YEAR, mYear);
         mCalendar.set(Calendar.DAY_OF_MONTH, 1);
         mDayOfWeekStart = mCalendar.get(Calendar.DAY_OF_WEEK);
-
-        if (isValidDayOfWeek(weekStart)) {
-            mWeekStart = weekStart;
-        } else {
-            mWeekStart = mCalendar.getFirstDayOfWeek();
-        }
 
         mDaysInMonth = getDaysInMonth(mMonth, mYear);
 
@@ -417,8 +381,9 @@ class SimpleMonthView extends View {
     }
 
     public int findDayOffset() {
-        final int offset = mDayOfWeekStart - mWeekStart;
-        if (mDayOfWeekStart < mWeekStart) {
+        final int weekStart = mStyleDelegate.getFirstDayOfWeek();
+        final int offset = mDayOfWeekStart - weekStart;
+        if (mDayOfWeekStart < weekStart) {
             return offset + DAYS_IN_WEEK;
         }
         return offset;
