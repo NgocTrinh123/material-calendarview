@@ -54,7 +54,6 @@ class SimpleMonthView extends View {
 
     private static final int DEFAULT_WEEK_START = Calendar.SUNDAY;
 
-    private final TextPaint mMonthPaint = new TextPaint();
     private final TextPaint mDayOfWeekPaint = new TextPaint();
     private final TextPaint mDayPaint = new TextPaint();
     private final Paint mDaySelectorPaint = new Paint();
@@ -146,18 +145,16 @@ class SimpleMonthView extends View {
         initPaints(getResources());
     }
 
+    public int getPaddedWidth() {
+        return mPaddedWidth;
+    }
+
     public int getMonthHeight() {
         return mMonthHeight;
     }
 
     public int getCellWidth() {
         return mCellWidth;
-    }
-
-    public void setMonthTextAppearance(int resId) {
-        ViewUtils.applyTextAppearance(getContext(), mMonthPaint, resId);
-
-        invalidate();
     }
 
     public void setDayOfWeekTextAppearance(int resId) {
@@ -185,18 +182,10 @@ class SimpleMonthView extends View {
      * Sets up the text and style properties for painting.
      */
     private void initPaints(Resources res) {
-        final int monthTextSize = res.getDimensionPixelSize(
-                R.dimen.mcv_date_picker_month_text_size);
         final int dayOfWeekTextSize = res.getDimensionPixelSize(
                 R.dimen.mcv_date_picker_day_of_week_text_size);
         final int dayTextSize = res.getDimensionPixelSize(
                 R.dimen.mcv_date_picker_day_text_size);
-
-        mMonthPaint.setAntiAlias(true);
-        mMonthPaint.setTextSize(monthTextSize);
-        mMonthPaint.setTypeface(Typeface.DEFAULT);
-        mMonthPaint.setTextAlign(Align.CENTER);
-        mMonthPaint.setStyle(Style.FILL);
 
         mDayOfWeekPaint.setAntiAlias(true);
         mDayOfWeekPaint.setTextSize(dayOfWeekTextSize);
@@ -220,42 +209,11 @@ class SimpleMonthView extends View {
     public void setStyleDelegate(StyleDelegate styleDelegate) {
         mStyleDelegate = styleDelegate;
 
-        setMonthTextAppearance(mStyleDelegate.getMonthTextAppearance());
         setDayOfWeekTextAppearance(mStyleDelegate.getDayOfWeekTextAppearance());
         setDayTextAppearance(mStyleDelegate.getDayTextAppearance());
         setDaySelectorColor(mStyleDelegate.getSelectionColor());
         setDayHighlightColor(mStyleDelegate.getHighlightColor());
 
-        setMonthTextColor(mStyleDelegate.getMonthTextColor());
-        setDayOfWeekTextColor(mStyleDelegate.getDayOfWeekTextColor());
-        setDayTextColor(mStyleDelegate.getDayTextColor());
-
-        invalidate();
-    }
-
-    void setMonthTextColor(ColorStateList monthTextColor) {
-        if (monthTextColor == null) {
-            return;
-        }
-        final int enabledColor = monthTextColor.getColorForState(ENABLED_STATE_SET, 0);
-        mMonthPaint.setColor(enabledColor);
-        invalidate();
-    }
-
-    void setDayOfWeekTextColor(ColorStateList dayOfWeekTextColor) {
-        if (dayOfWeekTextColor == null) {
-            return;
-        }
-        final int enabledColor = dayOfWeekTextColor.getColorForState(ENABLED_STATE_SET, 0);
-        mDayOfWeekPaint.setColor(enabledColor);
-        invalidate();
-    }
-
-    void setDayTextColor(ColorStateList dayTextColor) {
-        if (dayTextColor == null) {
-            return;
-        }
-        mDayTextColor = dayTextColor;
         invalidate();
     }
 
@@ -320,21 +278,11 @@ class SimpleMonthView extends View {
         final int paddingTop = getPaddingTop();
         canvas.translate(paddingLeft, paddingTop);
 
-        drawMonth(canvas);
+        mStyleDelegate.drawMonth(this, canvas);
         drawDaysOfWeek(canvas);
         drawDays(canvas);
 
         canvas.translate(-paddingLeft, -paddingTop);
-    }
-
-    private void drawMonth(Canvas canvas) {
-        final float x = mPaddedWidth / 2f;
-
-        // Vertically centered within the month header height.
-        final float lineHeight = mMonthPaint.ascent() + mMonthPaint.descent();
-        final float y = (mMonthHeight - lineHeight) / 2f;
-
-        mStyleDelegate.drawMonthLabel(canvas, mMonthPaint, getTitle(), x, y);
     }
 
     private void drawDaysOfWeek(Canvas canvas) {

@@ -7,6 +7,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.text.TextPaint;
 import android.text.format.DateFormat;
@@ -25,6 +26,7 @@ public class StyleDelegate {
     private static final String DEFAULT_TITLE_FORMAT = "MMMM y";
     private static final String DAY_OF_WEEK_FORMAT = "E";
 
+    private final Context mContext;
     private final int mDesiredMonthHeight;
     private final int mDesiredDayOfWeekHeight;
     private final int mDesiredDayHeight;
@@ -47,16 +49,24 @@ public class StyleDelegate {
     private ColorStateList dayOfWeekTextColor = null;
     private ColorStateList dayTextColor = null;
 
+    private final TextPaint mMonthPaint = new TextPaint();
+    private final TextPaint mDayOfWeekPaint = new TextPaint();
+    private final TextPaint mDayPaint = new TextPaint();
+    private final Paint mDaySelectorPaint = new Paint();
+    private final Paint mDayHighlightPaint = new Paint();
+
     public StyleDelegate(Context context, AttributeSet attrs, int defStyleAttr) {
+        this.mContext = context;
+
         final TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.CalendarView, defStyleAttr, 0);
 
         firstDayOfWeek = a.getInt(R.styleable.CalendarView_firstDayOfWeek,
                 Calendar.getInstance().getFirstDayOfWeek());
 
-        monthTextAppearanceResId = a.getResourceId(
+        setMonthTextAppearance(a.getResourceId(
                 R.styleable.CalendarView_monthTextAppearance,
-                R.style.TextAppearance_MaterialCalendarView_Month);
+                R.style.TextAppearance_MaterialCalendarView_Month));
         dayOfWeekTextAppearanceResId = a.getResourceId(
                 R.styleable.CalendarView_weekDayTextAppearance,
                 R.style.TextAppearance_MaterialCalendarView_DayOfWeek);
@@ -88,10 +98,53 @@ public class StyleDelegate {
         mTitleFormatter = new SimpleDateFormat(titleFormat, locale);
         mDayOfWeekFormatter = new SimpleDateFormat(DAY_OF_WEEK_FORMAT, locale);
         mDayFormatter = NumberFormat.getIntegerInstance(locale);
+
+        initPaints(res);
+    }
+
+    /**
+     * Sets up the text and style properties for painting.
+     */
+    private void initPaints(Resources res) {
+        final int monthTextSize = res.getDimensionPixelSize(
+                R.dimen.mcv_date_picker_month_text_size);
+        final int dayOfWeekTextSize = res.getDimensionPixelSize(
+                R.dimen.mcv_date_picker_day_of_week_text_size);
+        final int dayTextSize = res.getDimensionPixelSize(
+                R.dimen.mcv_date_picker_day_text_size);
+
+        mMonthPaint.setAntiAlias(true);
+        mMonthPaint.setTextSize(monthTextSize);
+        mMonthPaint.setTypeface(Typeface.DEFAULT);
+        mMonthPaint.setTextAlign(Paint.Align.CENTER);
+        mMonthPaint.setStyle(Paint.Style.FILL);
+
+        mDayOfWeekPaint.setAntiAlias(true);
+        mDayOfWeekPaint.setTextSize(dayOfWeekTextSize);
+        mDayOfWeekPaint.setTypeface(Typeface.DEFAULT);
+        mDayOfWeekPaint.setTextAlign(Paint.Align.CENTER);
+        mDayOfWeekPaint.setStyle(Paint.Style.FILL);
+
+        mDaySelectorPaint.setAntiAlias(true);
+        mDaySelectorPaint.setStyle(Paint.Style.FILL);
+
+        mDayHighlightPaint.setAntiAlias(true);
+        mDayHighlightPaint.setStyle(Paint.Style.FILL);
+
+        mDayPaint.setAntiAlias(true);
+        mDayPaint.setTextSize(dayTextSize);
+        mDayPaint.setTypeface(Typeface.DEFAULT);
+        mDayPaint.setTextAlign(Paint.Align.CENTER);
+        mDayPaint.setStyle(Paint.Style.FILL);
     }
 
     public int getFirstDayOfWeek() {
         return firstDayOfWeek;
+    }
+
+    public void setMonthTextAppearance(int resId) {
+        this.monthTextAppearanceResId = resId;
+        ViewUtils.applyTextAppearance(mContext, mMonthPaint, resId);
     }
 
     public int getDayTextAppearance() {
@@ -192,5 +245,15 @@ public class StyleDelegate {
 
     public CharSequence getDayLabel(int id) {
         return mDayFormatter.format(id);
+    }
+
+    public void drawMonth(SimpleMonthView monthView, Canvas canvas) {
+        final float x = monthView.getPaddedWidth() / 2f;
+
+        // Vertically centered within the month header height.
+        final float lineHeight = mMonthPaint.ascent() + mMonthPaint.descent();
+        final float y = (monthView.getMonthHeight() - lineHeight) / 2f;
+
+        drawMonthLabel(canvas, mMonthPaint, monthView.getTitle(), x, y);
     }
 }
